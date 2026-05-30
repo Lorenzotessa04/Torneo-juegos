@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneo de juego de mesa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #f4f6f8; --surface: #ffffff; --border: #e5e7eb;
+            --text: #111827; --text-secondary: #6b7280; --text-muted: #9ca3af;
+            --primary: #111827; --primary-hover: #374151;
+            --radius: 6px; --radius-sm: 4px;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+        .navbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .nav-left { display: flex; align-items: center; gap: 32px; height: 100%; }
+        .logo { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .logo i { font-size: 20px; }
+        .nav-links { display: flex; gap: 0; height: 100%; }
+        .nav-links a { text-decoration: none; color: var(--text-secondary); font-weight: 500; font-size: 13px; padding: 0 16px; height: 100%; display: flex; align-items: center; border-bottom: 2px solid transparent; transition: color 0.15s; cursor: pointer; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-links a.active { color: var(--text); font-weight: 600; border-bottom-color: var(--text); }
+        .nav-right { display: flex; align-items: center; gap: 6px; }
+        .btn-nuevo { background: var(--primary); color: white; border: none; padding: 7px 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-nuevo:hover { background: var(--primary-hover); }
+        .nav-icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary); background: none; border: none; font-size: 18px; transition: all 0.15s; }
+        .nav-icon-btn:hover { color: var(--text); background: #f3f4f6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
+        .main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
+        .panel { background: var(--surface); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+        .panel-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+        .form-group { margin-bottom: 12px; }
+        .form-label { display: block; font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; color: var(--text); background: #f9fafb; transition: border-color 0.15s, box-shadow 0.15s; }
+        .form-input:focus { outline: none; border-color: #9ca3af; background: white; box-shadow: 0 0 0 3px rgba(156,163,175,0.1); }
+        input[type="date"].form-input { padding: 7px 10px; }
+        .btn-guardar { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 4px; }
+        .btn-guardar:hover { background: var(--primary-hover); }
+        .btn-guardar:disabled { background: #d1d5db; cursor: not-allowed; }
+        .mensaje { padding: 8px 10px; border-radius: var(--radius-sm); font-size: 12px; margin-top: 10px; display: none; font-weight: 500; }
+        .mensaje.exito { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; display: block; }
+        .mensaje.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: block; }
+        .mensaje.info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; display: block; }
+        .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .seccion-titulo { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .seccion-titulo i { font-size: 16px; color: var(--text-muted); }
+        .btn-editar { font-size: 12px; color: var(--text-secondary); background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 500; padding: 4px 8px; border-radius: var(--radius-sm); }
+        .btn-editar:hover { color: var(--text); background: #f3f4f6; }
+
+        /* INPUT FILE CUSTOM */
+        .input-file-custom {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .input-file-custom:hover { border-color: #9ca3af; background: #f3f4f6; color: var(--text); }
+        .input-file-custom i { font-size: 16px; }
+        .preview-foto-partida {
+            width: 100%;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        /* MARCADOR GLOBAL */
+        .marcador-global-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 28px 32px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .marcador-global-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ef4444 100%);
+        }
+        .marcador-global-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .marcador-global-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .marcador-global-vs {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .marcador-duelo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .duelo-jugador {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        .duelo-foto-wrap {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .duelo-foto {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            display: block;
+            transition: transform 0.2s;
+        }
+        .duelo-foto:hover { transform: scale(1.05); }
+        .duelo-foto.lider {
+            border-color: #eab308;
+            box-shadow: 0 0 0 5px rgba(234,179,8,0.15);
+        }
+        .duelo-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .duelo-avatar:hover { transform: scale(1.05); }
+        .duelo-avatar.lider {
+            border-color: #eab308;
+            box-shadow: 0 0 0 5px rgba(234,179,8,0.15);
+        }
+        .duelo-avatar i { font-size: 32px; color: var(--text-muted); }
+        .duelo-crown {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fef3c7;
+            color: #a16207;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 2px solid #fde68a;
+            z-index: 2;
+            animation: pulse-crown 2s infinite;
+        }
+        @keyframes pulse-crown {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.15); }
+        }
+        .duelo-nombre {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .duelo-puntos {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .duelo-puntos.lider { color: #a16207; }
+        .duelo-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .duelo-centro {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .duelo-diferencia {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #f3f4f6;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+        .duelo-barra-cont {
+            width: 140px;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .duelo-barra-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ef4444);
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        .duelo-barra-marcador {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 3px;
+            background: white;
+            border-radius: 2px;
+            transition: left 0.6s ease;
+            box-shadow: 0 0 4px rgba(0,0,0,0.2);
+        }
+        .duelo-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            justify-content: center;
+        }
+        .duelo-stat {
+            text-align: center;
+        }
+        .duelo-stat-valor {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .duelo-stat-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* RACHA */
+        .racha-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ea580c;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 6px;
+            animation: racha-pulse 1.5s infinite;
+        }
+        @keyframes racha-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234,88,12,0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(234,88,12,0); }
+        }
+        .racha-badge i { font-size: 14px; }
+
+        /* VICTORIAS */
+        .victorias-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .victorias-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .victorias-titulo {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .victorias-titulo i { font-size: 16px; color: var(--text-muted); }
+        .victorias-body {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 48px;
+            padding: 8px 0 4px;
+        }
+        .victoria-barra-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .victoria-barra-cont {
+            width: 72px;
+            background: #f3f4f6;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+            position: relative;
+            min-height: 120px;
+        }
+        .victoria-barra {
+            width: 100%;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: height 0.8s ease;
+            position: relative;
+        }
+        .victoria-barra.j1 { background: linear-gradient(180deg, #3b82f6, #2563eb); }
+        .victoria-barra.j2 { background: linear-gradient(180deg, #ef4444, #dc2626); }
+        .victoria-barra-numero {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .victoria-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .victoria-sublabel {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* RANKING POR JUEGO */
+        .ranking-juegos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+        }
+        .ranking-juego-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 16px;
+            transition: box-shadow 0.2s;
+        }
+        .ranking-juego-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .ranking-juego-nombre {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ranking-juego-nombre i { color: var(--text-muted); }
+        .ranking-juego-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .ranking-juego-stat {
+            text-align: center;
+        }
+        .ranking-juego-stat-valor {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .ranking-juego-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .mini-barra-cont {
+            width: 100%;
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 3px;
+            overflow: hidden;
+            display: flex;
+        }
+        .mini-barra-j1 { height: 100%; background: #3b82f6; transition: width 0.6s ease; }
+        .mini-barra-j2 { height: 100%; background: #ef4444; transition: width 0.6s ease; }
+        .ranking-dominador {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .ranking-dominador strong { color: var(--text); }
+
+        /* HISTORIAL */
+        .historial-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .tabla-container { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+        .tabla-historial { width: 100%; border-collapse: collapse; }
+        .tabla-historial th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        .tabla-historial th:last-child { text-align: center; width: 50px; }
+        .tabla-historial th:nth-child(3), .tabla-historial th:nth-child(4) { text-align: right; }
+        .tabla-historial td { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; font-size: 13px; vertical-align: middle; }
+        .tabla-historial td:last-child { text-align: center; }
+        .tabla-historial td:nth-child(3), .tabla-historial td:nth-child(4) { text-align: right; }
+        .tabla-historial tr:hover td { background: #f9fafb; }
+        .tabla-historial tr:last-child td { border-bottom: none; }
+        .celda-juego { display: flex; align-items: center; gap: 10px; }
+        .icono-juego { width: 28px; height: 28px; border-radius: var(--radius-sm); background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .foto-partida-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.15s;
+        }
+        .foto-partida-thumb:hover { transform: scale(1.1); }
+        .nombre-juego { font-weight: 500; }
+        .fecha-celda { color: var(--text-secondary); font-size: 12px; }
+        .puntos-celda { font-weight: 500; }
+        .puntos-ganador { font-weight: 700; }
+        .btn-eliminar { background: none; border: none; color: #d1d5db; cursor: pointer; font-size: 16px; padding: 4px; border-radius: var(--radius-sm); transition: all 0.15s; }
+        .btn-eliminar:hover { color: #ef4444; background: #fee2e2; }
+        .vista { display: none; }
+        .vista.activa { display: block; }
+
+        /* TORNEOS */
+        .torneos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .torneos-header-izq { display: flex; align-items: center; gap: 12px; }
+        .torneos-header-titulo { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .btn-volver { background: #f9fafb; color: var(--text-secondary); border: 1px solid var(--border); padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-volver:hover { background: #f3f4f6; color: var(--text); }
+        .btn-crear-torneo { background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-crear-torneo:hover { background: var(--primary-hover); }
+        .btn-finalizar { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 600; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; }
+        .btn-finalizar:hover { background: #bbf7d0; }
+
+        /* RESUMEN TORNEOS */
+        .resumen-torneos-titulo {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text);
+        }
+        .resumen-torneos-titulo i { font-size: 16px; color: var(--text-muted); }
+        .resumen-torneos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .resumen-torneo-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.15s;
+            cursor: pointer;
+        }
+        .resumen-torneo-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+        }
+        .resumen-torneo-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #eab308, #f59e0b);
+        }
+        .resumen-torneo-card.en-curso::before {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+        .resumen-torneo-card.proximo::before {
+            background: linear-gradient(90deg, #9ca3af, #d1d5db);
+        }
+        .resumen-torneo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .resumen-torneo-nombre {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+        }
+        .resumen-torneo-fecha {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .resumen-torneo-ganador {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            background: #fefce8;
+            border-radius: var(--radius-sm);
+            border: 1px solid #fde68a;
+        }
+        .resumen-torneo-ganador i {
+            font-size: 18px;
+            color: #eab308;
+        }
+        .resumen-torneo-ganador-texto {
+            font-size: 13px;
+            font-weight: 600;
+            color: #a16207;
+        }
+        .resumen-torneo-ganador-puntos {
+            font-size: 11px;
+            color: #a16207;
+            opacity: 0.8;
+        }
+        .resumen-torneo-duelo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .resumen-torneo-jugador {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .resumen-torneo-jugador.der {
+            flex-direction: row-reverse;
+            text-align: right;
+        }
+        .resumen-torneo-foto {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+        .resumen-torneo-foto.lider {
+            border-color: #eab308;
+            box-shadow: 0 0 0 3px rgba(234,179,8,0.15);
+        }
+        .resumen-torneo-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+        .resumen-torneo-avatar.lider {
+            border-color: #eab308;
+            box-shadow: 0 0 0 3px rgba(234,179,8,0.15);
+        }
+        .resumen-torneo-avatar i { font-size: 16px; color: var(--text-muted); }
+        .resumen-torneo-info { flex: 1; }
+        .resumen-torneo-nombre-jugador {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .resumen-torneo-puntos-jugador {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .resumen-torneo-puntos-jugador.lider {
+            color: #a16207;
+        }
+        .resumen-torneo-vs {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+        .resumen-torneo-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .resumen-torneo-stat {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .resumen-torneo-stat strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .resumen-torneo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* TABLA TORNEOS */
+        .tabla-torneos-wrap { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+        .tabla-torneos { width: 100%; border-collapse: collapse; }
+        .tabla-torneos th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        .tabla-torneos th:last-child { text-align: center; width: 110px; }
+        .tabla-torneos th:nth-child(5) { text-align: center; }
+        .tabla-torneos td { padding: 14px; border-bottom: 1px solid #f3f4f6; font-size: 13px; vertical-align: middle; }
+        .tabla-torneos tr { cursor: pointer; transition: background 0.1s; }
+        .tabla-torneos tr:hover td { background: #f9fafb; }
+        .tabla-torneos tr:last-child td { border-bottom: none; }
+        .tabla-torneos td:last-child { text-align: center; }
+        .tabla-torneos td:nth-child(5) { text-align: center; }
+        .tabla-torneos td:last-child .btn-eliminar, .tabla-torneos td:last-child .btn-finalizar { opacity: 0; transition: opacity 0.15s; }
+        .tabla-torneos tr:hover td:last-child .btn-eliminar, .tabla-torneos tr:hover td:last-child .btn-finalizar { opacity: 1; }
+        .torneo-nombre-celda { font-weight: 600; }
+        .torneo-jugadores-celda { font-size: 11px; color: var(--text-secondary); margin-top: 4px; display: flex; gap: 12px; }
+        .torneo-jugador-info { display: flex; align-items: center; gap: 4px; }
+        .torneo-fecha-celda { color: var(--text-secondary); font-size: 12px; }
+        .torneo-estado-badge { display: inline-block; padding: 3px 8px; border-radius: var(--radius-sm); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+        .estado-completado { background: #dcfce7; color: #166534; }
+        .estado-en-curso { background: #fef3c7; color: #92400e; }
+        .estado-proximo { background: #dbeafe; color: #1e40af; }
+        .estado-cancelado { background: #fee2e2; color: #991b1b; }
+        .torneo-partidas-count { color: var(--text-secondary); font-size: 12px; }
+
+        /* PODIO */
+        .podio-container { display: flex; align-items: flex-end; justify-content: center; gap: 16px; padding: 24px 0; margin-bottom: 8px; }
+        .podio-puesto { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .podio-puesto.primero { order: 2; }
+        .podio-puesto.segundo { order: 1; }
+        .podio-foto { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); margin-bottom: 8px; }
+        .podio-foto.primero { width: 80px; height: 80px; border-color: #eab308; box-shadow: 0 4px 12px rgba(234,179,8,0.25); }
+        .podio-foto.segundo { border-color: #9ca3af; box-shadow: 0 4px 12px rgba(156,163,175,0.25); }
+        .podio-avatar { width: 64px; height: 64px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border: 3px solid var(--border); margin-bottom: 8px; }
+        .podio-avatar.primero { width: 80px; height: 80px; border-color: #eab308; box-shadow: 0 4px 12px rgba(234,179,8,0.25); }
+        .podio-avatar.segundo { border-color: #9ca3af; box-shadow: 0 4px 12px rgba(156,163,175,0.25); }
+        .podio-avatar i { font-size: 28px; color: var(--text-muted); }
+        .podio-avatar.primero i { font-size: 36px; }
+        .podio-posicion { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .podio-posicion.primero { color: #a16207; }
+        .podio-posicion.segundo { color: #6b7280; }
+        .podio-nombre { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .podio-puntos { font-size: 13px; font-weight: 700; }
+        .podio-base { width: 100%; border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-top: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: white; }
+        .podio-base.primero { height: 60px; background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+        .podio-base.segundo { height: 40px; background: linear-gradient(180deg, #9ca3af, #6b7280); }
+
+        /* CONFETTI */
+        .confetti-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 300; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 10px; height: 20px; top: -20px; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
+        @keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg); } }
+
+        /* CANVAS */
+        .canvas-container {
+            background: #f9fafb;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 16px;
+            position: relative;
+        }
+        .canvas-leyenda {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .canvas-leyenda-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .canvas-leyenda-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* MODALES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,0.35); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-overlay.activo { display: flex; }
+        .modal { background: white; border-radius: var(--radius); padding: 0; width: 560px; max-width: 90vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid var(--border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .modal-header-titulo { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .btn-cerrar-modal { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px; padding: 4px; border-radius: var(--radius-sm); }
+        .btn-cerrar-modal:hover { color: var(--text); background: #f3f4f6; }
+        .modal-body { padding: 20px; }
+        .modal-seccion { margin-bottom: 20px; }
+        .modal-seccion:last-child { margin-bottom: 0; }
+        .modal-seccion-titulo { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .resumen-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .resumen-item { background: #f9fafb; border-radius: var(--radius); padding: 12px; border: 1px solid var(--border); }
+        .resumen-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+        .resumen-valor { font-size: 15px; font-weight: 600; }
+        .lista-juegos { list-style: none; }
+        .lista-juegos li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+        .lista-juegos li:last-child { border-bottom: none; padding-bottom: 0; }
+        .lista-juegos li:first-child { padding-top: 0; }
+        .juego-icono { width: 28px; height: 28px; border-radius: var(--radius-sm); background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .juego-info { flex: 1; }
+        .juego-nombre { font-size: 13px; font-weight: 500; }
+        .juego-fecha { font-size: 11px; color: var(--text-muted); }
+        .juego-puntos { font-size: 13px; font-weight: 600; text-align: right; min-width: 80px; }
+        .juego-vs { font-size: 11px; color: var(--text-muted); text-align: right; }
+        .modal-crear-torneo .modal { width: 420px; }
+        .modal-form-group { margin-bottom: 14px; }
+        .modal-form-label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .modal-form-input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; color: var(--text); background: #f9fafb; }
+        .modal-form-input:focus { outline: none; border-color: #9ca3af; background: white; box-shadow: 0 0 0 3px rgba(156,163,175,0.1); }
+        .modal-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .btn-modal { padding: 8px 16px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; cursor: pointer; border: none; font-family: inherit; }
+        .btn-modal.guardar { background: var(--primary); color: white; }
+        .btn-modal.guardar:hover { background: var(--primary-hover); }
+        .btn-modal.cancelar { background: #f3f4f6; color: var(--text); border: 1px solid var(--border); }
+        .btn-modal.cancelar:hover { background: #e5e7eb; }
+        .btn-modal.finalizar { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .btn-modal.finalizar:hover { background: #bbf7d0; }
+        .modal-editar-jugadores .modal { width: 380px; }
+        .modal-jugador { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: #f9fafb; border-radius: var(--radius); border: 1px solid var(--border); }
+        .modal-foto { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); cursor: pointer; }
+        .modal-foto:hover { transform: scale(1.03); }
+        .modal-avatar { width: 44px; height: 44px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--border); }
+        .modal-avatar:hover { transform: scale(1.03); }
+        .modal-avatar i { font-size: 18px; color: var(--text-muted); }
+        .modal-campo { flex: 1; }
+        .modal-campo label { font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .modal-campo input { width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; }
+        .estado-vacio { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+        .estado-vacio i { font-size: 40px; margin-bottom: 12px; color: #d1d5db; }
+        .estado-vacio p:first-of-type { font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; font-size: 14px; }
+        .estado-vacio p:last-of-type { font-size: 13px; }
+        .torneo-activo-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #fbbf24;
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #92400e;
+        }
+        .torneo-activo-banner i { font-size: 16px; }
+
+        /* MODAL FOTO PARTIDA */
+        .modal-foto-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15,23,42,0.75);
+            z-index: 260;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-foto-overlay.activo { display: flex; }
+        .modal-foto-img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+        .modal-foto-cerrar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .modal-foto-cerrar:hover { background: #f3f4f6; }
+
+        /* MODAL CIERRE DE TORNEO */
+        .modal-cierre-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 250;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-cierre-overlay.activo {
+            display: flex;
+        }
+        .modal-cierre {
+            background: white;
+            border-radius: 16px;
+            width: 640px;
+            max-width: 92vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            animation: cierre-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes cierre-appear {
+            0% { transform: scale(0.85) translateY(40px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-cierre-header {
+            text-align: center;
+            padding: 28px 24px 20px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-bottom: 1px solid #fbbf24;
+            position: relative;
+        }
+        .modal-cierre-header h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .modal-cierre-header p {
+            font-size: 14px;
+            color: #a16207;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+        .modal-cierre-body {
+            padding: 0;
+        }
+        .cierre-seccion {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cierre-seccion:last-child {
+            border-bottom: none;
+        }
+        .cierre-seccion-titulo {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cierre-seccion-titulo i { font-size: 16px; }
+
+        /* Podio en modal de cierre */
+        .cierre-podio {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 24px;
+            padding: 8px 0 16px;
+        }
+        .cierre-podio-puesto {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: podio-slide-up 0.6s ease-out backwards;
+        }
+        .cierre-podio-puesto.primero {
+            order: 2;
+            animation-delay: 0.15s;
+        }
+        .cierre-podio-puesto.segundo {
+            order: 1;
+            animation-delay: 0.35s;
+        }
+        @keyframes podio-slide-up {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .cierre-podio-crown {
+            font-size: 28px;
+            color: #eab308;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 2px 4px rgba(234,179,8,0.4));
+            animation: crown-bounce 1s ease-in-out infinite;
+        }
+        @keyframes crown-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .cierre-podio-foto {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid;
+            margin-bottom: 10px;
+        }
+        .cierre-podio-foto.primero {
+            width: 90px;
+            height: 90px;
+            border-color: #eab308;
+            box-shadow: 0 4px 20px rgba(234,179,8,0.3);
+        }
+        .cierre-podio-foto.segundo {
+            border-color: #9ca3af;
+            box-shadow: 0 4px 20px rgba(156,163,175,0.3);
+        }
+        .cierre-podio-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid;
+            margin-bottom: 10px;
+        }
+        .cierre-podio-avatar.primero {
+            width: 90px;
+            height: 90px;
+            border-color: #eab308;
+            box-shadow: 0 4px 20px rgba(234,179,8,0.3);
+        }
+        .cierre-podio-avatar.segundo {
+            border-color: #9ca3af;
+            box-shadow: 0 4px 20px rgba(156,163,175,0.3);
+        }
+        .cierre-podio-avatar i { font-size: 32px; color: var(--text-muted); }
+        .cierre-podio-avatar.primero i { font-size: 40px; }
+        .cierre-podio-posicion {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .cierre-podio-posicion.primero { color: #a16207; }
+        .cierre-podio-posicion.segundo { color: #6b7280; }
+        .cierre-podio-nombre {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .cierre-podio-puntos {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+        .cierre-podio-puntos.primero { color: #a16207; }
+        .cierre-podio-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .cierre-podio-base {
+            width: 100%;
+            border-radius: 8px 8px 0 0;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 22px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
+        .cierre-podio-base.primero {
+            height: 65px;
+            background: linear-gradient(180deg, #fbbf24, #f59e0b);
+            width: 110px;
+        }
+        .cierre-podio-base.segundo {
+            height: 45px;
+            background: linear-gradient(180deg, #9ca3af, #6b7280);
+            width: 90px;
+        }
+
+        /* Stats del torneo */
+        .cierre-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .cierre-stat-box {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 14px 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .cierre-stat-valor {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .cierre-stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tabla de partidas en cierre */
+        .cierre-tabla-partidas {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .cierre-tabla-partidas th {
+            background: #f9fafb;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .cierre-tabla-partidas th:nth-child(3),
+        .cierre-tabla-partidas th:nth-child(4) {
+            text-align: right;
+        }
+        .cierre-tabla-partidas td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+        .cierre-tabla-partidas td:nth-child(3),
+        .cierre-tabla-partidas td:nth-child(4) {
+            text-align: right;
+            font-weight: 600;
+        }
+        .cierre-tabla-partidas tr:last-child td {
+            border-bottom: none;
+        }
+        .cierre-juego-celda {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cierre-juego-icono {
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-sm);
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .cierre-juego-nombre {
+            font-weight: 500;
+        }
+        .cierre-juego-fecha {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .cierre-ganador-j1 { color: #3b82f6; font-weight: 700; }
+        .cierre-ganador-j2 { color: #ef4444; font-weight: 700; }
+        .cierre-empate { color: #6b7280; }
+
+        .cierre-boton {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-top: 4px;
+        }
+        .cierre-boton:hover {
+            background: var(--primary-hover);
+        }
+        .cierre-boton i {
+            margin-right: 6px;
+        }
+
+        /* Ganador banner */
+        .cierre-ganador-banner {
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .cierre-ganador-banner i {
+            font-size: 28px;
+            color: #eab308;
+        }
+        .cierre-ganador-banner-texto {
+            font-size: 15px;
+            font-weight: 700;
+            color: #92400e;
+        }
+        .cierre-ganador-banner-sub {
+            font-size: 12px;
+            color: #a16207;
+            font-weight: 500;
+        }
+        #input-foto-j1, #input-foto-j2 { display: none; }
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .marcador-duelo { flex-direction: column; gap: 20px; }
+            .duelo-centro { order: -1; }
+            .resumen-grid { grid-template-columns: 1fr; }
+            .podio-container { gap: 8px; }
+            .victorias-body { gap: 24px; }
+            .navbar { padding: 0 16px; }
+            .nav-links { display: none; }
+            .container { padding: 16px; }
+            .tabla-torneos td:last-child .btn-eliminar, .tabla-torneos td:last-child .btn-finalizar { opacity: 1; }
+            .resumen-torneos-grid { grid-template-columns: 1fr; }
+            .ranking-juegos-grid { grid-template-columns: 1fr; }
+            .cierre-stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo"><i class="ph ph-trophy"></i><span>Torneo de juego de mesa</span></div>
+            <div class="nav-links">
+                <a href="#" class="active" onclick="cambiarVista('dashboard', this)">Dashboard</a>
+                <a href="#" onclick="cambiarVista('torneos', this)">Torneos</a>
+                <a href="#" onclick="cambiarVista('estadisticas', this)">Analisis</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-nuevo" onclick="abrirModalCrearTorneo()"><i class="ph ph-plus"></i>Nuevo Torneo</button>
+            <button class="nav-icon-btn"><i class="ph ph-bell"></i></button>
+            <button class="nav-icon-btn"><i class="ph ph-gear"></i></button>
+            <button class="nav-icon-btn"><i class="ph ph-user"></i></button>
+        </div>
+    </nav>
+
+    <!-- DASHBOARD -->
+    <div id="vista-dashboard" class="vista activa">
+        <div class="container">
+            <div class="main-grid">
+                <div class="columna-izquierda">
+                    <div class="panel">
+                        <div class="panel-title">Registrar Partida</div>
+                        <div id="torneo-activo-info"></div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre del Juego</label>
+                            <input type="text" id="nombre-juego" class="form-input" placeholder="Ej: Ajedrez" list="catalogo-juegos" autocomplete="off">
+                            <datalist id="catalogo-juegos"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Fecha de la Partida</label>
+                            <input type="date" id="fecha-partida" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Puntos Jugador 1</label>
+                            <input type="number" id="puntos-j1" class="form-input" min="0" max="1000" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Puntos Jugador 2</label>
+                            <input type="number" id="puntos-j2" class="form-input" min="0" max="1000" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Foto del tablero (opcional)</label>
+                            <div class="input-file-custom" onclick="document.getElementById('input-foto-partida').click()">
+                                <i class="ph ph-camera"></i>
+                                <span id="label-foto-partida">Añadir foto...</span>
+                            </div>
+                            <input type="file" id="input-foto-partida" accept="image/*" style="display:none" onchange="procesarFotoPartida(this)">
+                            <img id="preview-foto-partida" class="preview-foto-partida" style="display:none;">
+                        </div>
+                        <button class="btn-guardar" id="btn-guardar-partida" onclick="guardarPartida()">Guardar Partida</button>
+                        <div id="mensaje" class="mensaje"></div>
+                    </div>
+                </div>
+                <div class="columna-derecha">
+                    <div class="seccion-header">
+                        <div class="seccion-titulo"><i class="ph ph-chart-bar"></i>Marcador Global</div>
+                        <button class="btn-editar" onclick="abrirModalEditar()"><i class="ph ph-pencil-simple"></i>Editar Jugadores</button>
+                    </div>
+                    <div id="marcador-global"></div>
+                    <div class="victorias-card">
+                        <div class="victorias-header">
+                            <div class="victorias-titulo"><i class="ph ph-medal"></i>Juegos Ganados</div>
+                        </div>
+                        <div class="victorias-body" id="victorias-body"></div>
+                    </div>
+                    <div id="racha-card" class="victorias-card" style="display:none;">
+                        <div class="victorias-header">
+                            <div class="victorias-titulo"><i class="ph ph-fire"></i>Racha Actual</div>
+                        </div>
+                        <div id="racha-body" style="padding:8px 0;text-align:center;"></div>
+                    </div>
+                    <div class="historial-header">
+                        <div class="seccion-titulo"><i class="ph ph-clock-counter-clockwise"></i>Historial de Partidas</div>
+                    </div>
+                    <div class="tabla-container"><div id="contenido-historial"></div></div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TORNEOS -->
+    <div id="vista-torneos" class="vista">
+        <div class="container">
+            <div class="torneos-header">
+                <div class="torneos-header-izq">
+                    <button class="btn-volver" onclick="volverAlDashboard()"><i class="ph ph-arrow-left"></i>Volver al Dashboard</button>
+                    <div class="torneos-header-titulo"><i class="ph ph-trophy"></i>Torneos</div>
+                </div>
+                <button class="btn-crear-torneo" onclick="abrirModalCrearTorneo()"><i class="ph ph-plus"></i>Crear Torneo</button>
+            </div>
+            <div id="resumen-torneos-section" style="margin-bottom:24px;"></div>
+            <div id="contenido-torneos"></div>
+        </div>
+    </div>
+
+    <!-- ESTADISTICAS / ANALISIS -->
+    <div id="vista-estadisticas" class="vista">
+        <div class="container">
+            <div style="margin-bottom:24px;">
+                <div class="seccion-titulo" style="margin-bottom:16px;"><i class="ph ph-chart-line-up"></i>Evolucion del Torneo Activo</div>
+                <div class="panel" style="padding:20px;">
+                    <div id="grafico-mensaje" class="estado-vacio" style="padding:20px;">
+                        <i class="ph ph-chart-line"></i>
+                        <p>No hay datos suficientes</p>
+                        <p>Registra al menos 2 partidas para ver la evolucion.</p>
+                    </div>
+                    <div id="canvas-wrapper" style="display:none;">
+                        <div class="canvas-leyenda">
+                            <div class="canvas-leyenda-item"><div class="canvas-leyenda-color" style="background:#3b82f6"></div><span id="leyenda-j1">Jugador 1</span></div>
+                            <div class="canvas-leyenda-item"><div class="canvas-leyenda-color" style="background:#ef4444"></div><span id="leyenda-j2">Jugador 2</span></div>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="canvas-evolucion"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="seccion-titulo" style="margin-bottom:16px;"><i class="ph ph-chart-pie-slice"></i>Rendimiento Historico por Juego</div>
+                <div id="desglose-juegos-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE -->
+    <div class="modal-overlay" id="modal-detalle-overlay" onclick="cerrarModalDetalle(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-header-titulo"><i class="ph ph-trophy"></i><span id="modal-detalle-titulo">Detalle del Torneo</span></div>
+                <button class="btn-cerrar-modal" onclick="cerrarModalDetalleDirecto()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body" id="modal-detalle-body"></div>
+        </div>
+    </div>
+
+    <!-- MODAL FOTO PARTIDA -->
+    <div class="modal-foto-overlay" id="modal-foto-overlay" onclick="cerrarModalFoto(event)">
+        <button class="modal-foto-cerrar" onclick="cerrarModalFotoDirecto()"><i class="ph ph-x"></i></button>
+        <img id="modal-foto-img" class="modal-foto-img" src="" alt="Foto de partida">
+    </div>
+
+    <!-- MODAL CIERRE DE TORNEO -->
+    <div class="modal-cierre-overlay" id="modal-cierre-overlay" onclick="cerrarModalCierre(event)">
+        <div class="modal-cierre" onclick="event.stopPropagation()">
+            <div class="modal-cierre-header">
+                <h2><i class="ph ph-trophy"></i> Torneo Finalizado</h2>
+                <p id="cierre-torneo-nombre">Nombre del Torneo</p>
+            </div>
+            <div class="modal-cierre-body" id="cierre-body"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR -->
+    <div class="modal-overlay modal-crear-torneo" id="modal-crear-overlay" onclick="cerrarModalCrear(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-header-titulo"><i class="ph ph-plus-circle"></i>Crear Nuevo Torneo</div>
+                <button class="btn-cerrar-modal" onclick="cerrarModalCrearDirecto()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Nombre del Torneo</label>
+                    <input type="text" id="crear-torneo-nombre" class="modal-form-input" placeholder="Ej: Torneo de Verano 2024">
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Fecha de Inicio</label>
+                    <input type="date" id="crear-torneo-fecha" class="modal-form-input">
+                </div>
+                <div class="modal-form-group">
+                    <label class="modal-form-label">Estado</label>
+                    <select id="crear-torneo-estado" class="modal-form-input">
+                        <option value="en-curso">En Curso</option>
+                        <option value="proximo">Proximo</option>
+                        <option value="completado">Completado</option>
+                    </select>
+                </div>
+                <div class="modal-botones">
+                    <button class="btn-modal cancelar" onclick="cerrarModalCrearDirecto()">Cancelar</button>
+                    <button class="btn-modal guardar" onclick="crearTorneo()">Crear Torneo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR -->
+    <div class="modal-overlay modal-editar-jugadores" id="modal-editar-overlay" onclick="cerrarModalEditar(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-header-titulo"><i class="ph ph-pencil-simple-line"></i>Editar Jugadores</div>
+                <button class="btn-cerrar-modal" onclick="cerrarModalEditarDirecto()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-jugador">
+                    <div id="modal-avatar-j1" class="modal-avatar" onclick="document.getElementById('input-foto-j1').click()"><i class="ph ph-user"></i></div>
+                    <img id="modal-foto-j1" class="modal-foto" style="display:none;" onclick="document.getElementById('input-foto-j1').click()">
+                    <div class="modal-campo"><label>Jugador 1</label><input type="text" id="modal-nombre-j1" placeholder="Nombre del jugador 1"></div>
+                </div>
+                <div class="modal-jugador">
+                    <div id="modal-avatar-j2" class="modal-avatar" onclick="document.getElementById('input-foto-j2').click()"><i class="ph ph-user"></i></div>
+                    <img id="modal-foto-j2" class="modal-foto" style="display:none;" onclick="document.getElementById('input-foto-j2').click()">
+                    <div class="modal-campo"><label>Jugador 2</label><input type="text" id="modal-nombre-j2" placeholder="Nombre del jugador 2"></div>
+                </div>
+                <div class="modal-botones">
+                    <button class="btn-modal cancelar" onclick="cerrarModalEditarDirecto()">Cancelar</button>
+                    <button class="btn-modal guardar" onclick="guardarJugadores()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confetti-container" class="confetti-overlay"></div>
+    <input type="file" id="input-foto-j1" accept="image/*" onchange="procesarFoto(1, this)">
+    <input type="file" id="input-foto-j2" accept="image/*" onchange="procesarFoto(2, this)">
+
+    <script>
+        // ================== DATOS ==================
+        function getDefaultData() {
+            return {
+                jugadores: [
+                    { nombre: 'Jugador 1', foto: null },
+                    { nombre: 'Jugador 2', foto: null }
+                ],
+                torneos: [],
+                juegosCatalogo: []
+            };
+        }
+
+        let datos = JSON.parse(localStorage.getItem('torneoDatosV3')) || getDefaultData();
+        let fotoPartidaPendiente = null;
+
+        function guardarDatos() {
+            localStorage.setItem('torneoDatosV3', JSON.stringify(datos));
+        }
+
+        function getTorneoActivo() {
+            return datos.torneos.find(t => t.estado === 'en-curso') || null;
+        }
+
+        function getPartidasActivas() {
+            const t = getTorneoActivo();
+            return t ? (t.partidas || []) : [];
+        }
+
+        function getTodasLasPartidas() {
+            return datos.torneos.reduce((acc, t) => acc.concat(t.partidas || []), []);
+        }
+
+        // ================== INICIALIZACION ==================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('fecha-partida').valueAsDate = new Date();
+            document.getElementById('crear-torneo-fecha').valueAsDate = new Date();
+            renderizarTodo();
+        });
+
+        function renderizarTodo() {
+            renderizarCatalogo();
+            renderizarInfoTorneoActivo();
+            renderizarMarcadorGlobal();
+            renderizarVictorias();
+            renderizarRacha();
+            renderizarHistorial();
+            renderizarTorneos();
+            renderizarGraficoEvolucion();
+            renderizarDesgloseJuegos();
+        }
+
+        // ================== CATALOGO DE JUEGOS ==================
+        function renderizarCatalogo() {
+            const datalist = document.getElementById('catalogo-juegos');
+            datalist.innerHTML = '';
+            (datos.juegosCatalogo || []).forEach(juego => {
+                const option = document.createElement('option');
+                option.value = juego;
+                datalist.appendChild(option);
+            });
+        }
+
+        function agregarJuegoACatalogo(juego) {
+            if (!juego) return;
+            if (!datos.juegosCatalogo) datos.juegosCatalogo = [];
+            const normalizado = juego.trim();
+            if (!datos.juegosCatalogo.includes(normalizado)) {
+                datos.juegosCatalogo.push(normalizado);
+                datos.juegosCatalogo.sort((a, b) => a.localeCompare(b));
+                guardarDatos();
+                renderizarCatalogo();
+            }
+        }
+
+        // ================== FOTO PARTIDA ==================
+        function procesarFotoPartida(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                mostrarMensaje('La foto es muy grande. Maximo 2MB.', 'error');
+                input.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                fotoPartidaPendiente = e.target.result;
+                const preview = document.getElementById('preview-foto-partida');
+                preview.src = fotoPartidaPendiente;
+                preview.style.display = 'block';
+                document.getElementById('label-foto-partida').textContent = 'Cambiar foto...';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function limpiarFotoPartida() {
+            fotoPartidaPendiente = null;
+            document.getElementById('input-foto-partida').value = '';
+            document.getElementById('preview-foto-partida').style.display = 'none';
+            document.getElementById('preview-foto-partida').src = '';
+            document.getElementById('label-foto-partida').textContent = 'Añadir foto...';
+        }
+
+        function abrirModalFoto(src) {
+            document.getElementById('modal-foto-img').src = src;
+            document.getElementById('modal-foto-overlay').classList.add('activo');
+        }
+        function cerrarModalFotoDirecto() {
+            document.getElementById('modal-foto-overlay').classList.remove('activo');
+        }
+        function cerrarModalFoto(e) {
+            if (e.target === e.currentTarget) cerrarModalFotoDirecto();
+        }
+
+        // ================== INFO TORNEO ACTIVO ==================
+        function renderizarInfoTorneoActivo() {
+            const contenedor = document.getElementById('torneo-activo-info');
+            const btn = document.getElementById('btn-guardar-partida');
+            const t = getTorneoActivo();
+            if (!t) {
+                contenedor.innerHTML = '<div class="mensaje info" style="display:block;margin-bottom:12px;">No hay torneo en curso. Crea uno desde la pestana Torneos para empezar a registrar partidas.</div>';
+                btn.disabled = true;
+                return;
+            }
+            contenedor.innerHTML = '<div class="torneo-activo-banner"><i class="ph ph-lightning"></i><span>Registrando partidas en: <strong>' + esc(t.nombre) + '</strong></span></div>';
+            btn.disabled = false;
+        }
+
+        // ================== RACHAS ==================
+        function calcularRacha(partidas, jugador) {
+            let racha = 0;
+            for (let i = partidas.length - 1; i >= 0; i--) {
+                const p = partidas[i];
+                const pj1 = parseInt(p.puntosJ1) || 0;
+                const pj2 = parseInt(p.puntosJ2) || 0;
+                if (jugador === 1 && pj1 > pj2) racha++;
+                else if (jugador === 2 && pj2 > pj1) racha++;
+                else break;
+            }
+            return racha;
+        }
+
+        function renderizarRacha() {
+            const partidas = getPartidasActivas();
+            const card = document.getElementById('racha-card');
+            const body = document.getElementById('racha-body');
+            if (partidas.length === 0) {
+                card.style.display = 'none';
+                return;
+            }
+            const rj1 = calcularRacha(partidas, 1);
+            const rj2 = calcularRacha(partidas, 2);
+            const j1 = datos.jugadores[0];
+            const j2 = datos.jugadores[1];
+            let html = '';
+            if (rj1 >= 3) {
+                html += '<div class="racha-badge"><i class="ph ph-fire"></i> ' + esc(j1.nombre.split(' ')[0]) + ' lleva racha de ' + rj1 + ' victorias</div>';
+            }
+            if (rj2 >= 3) {
+                html += '<div class="racha-badge" style="margin-left:8px;"><i class="ph ph-fire"></i> ' + esc(j2.nombre.split(' ')[0]) + ' lleva racha de ' + rj2 + ' victorias</div>';
+            }
+            if (!html) {
+                card.style.display = 'none';
+                return;
+            }
+            body.innerHTML = html;
+            card.style.display = 'block';
+        }
+
+        // ================== MARCADOR GLOBAL ==================
+        function renderizarMarcadorGlobal() {
+            const partidas = getPartidasActivas();
+            const totalJ1 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ1) || 0), 0);
+            const totalJ2 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ2) || 0), 0);
+            const lider = totalJ1 > totalJ2 ? 1 : totalJ2 > totalJ1 ? 2 : 0;
+            const diferencia = Math.abs(totalJ1 - totalJ2);
+            const total = totalJ1 + totalJ2 || 1;
+            const pctJ1 = (totalJ1 / total) * 100;
+
+            const j1 = datos.jugadores[0];
+            const j2 = datos.jugadores[1];
+
+            const fotoJ1 = j1.foto
+                ? '<img src="' + esc(j1.foto) + '" class="duelo-foto ' + (lider === 1 ? 'lider' : '') + '" alt="' + esc(j1.nombre) + '">'
+                : '<div class="duelo-avatar ' + (lider === 1 ? 'lider' : '') + '"><i class="ph ph-user"></i></div>';
+            const fotoJ2 = j2.foto
+                ? '<img src="' + esc(j2.foto) + '" class="duelo-foto ' + (lider === 2 ? 'lider' : '') + '" alt="' + esc(j2.nombre) + '">'
+                : '<div class="duelo-avatar ' + (lider === 2 ? 'lider' : '') + '"><i class="ph ph-user"></i></div>';
+
+            const partidasJugadas = partidas.length;
+            const victoriasJ1 = partidas.filter(p => (parseInt(p.puntosJ1) || 0) > (parseInt(p.puntosJ2) || 0)).length;
+            const victoriasJ2 = partidas.filter(p => (parseInt(p.puntosJ2) || 0) > (parseInt(p.puntosJ1) || 0)).length;
+            const empates = partidasJugadas - victoriasJ1 - victoriasJ2;
+            const promedioJ1 = partidasJugadas ? (totalJ1 / partidasJugadas).toFixed(1) : '0.0';
+            const promedioJ2 = partidasJugadas ? (totalJ2 / partidasJugadas).toFixed(1) : '0.0';
+
+            const t = getTorneoActivo();
+            const torneoLabel = t ? t.nombre : 'Sin torneo activo';
+
+            document.getElementById('marcador-global').innerHTML =
+                '<div class="marcador-global-card">' +
+                    '<div class="marcador-global-header">' +
+                        '<div class="marcador-global-label">' + esc(torneoLabel) + '</div>' +
+                        '<div class="marcador-global-vs">' + partidasJugadas + ' partidas jugadas</div>' +
+                    '</div>' +
+                    '<div class="marcador-duelo">' +
+                        '<div class="duelo-jugador">' +
+                            '<div class="duelo-foto-wrap">' +
+                                (lider === 1 ? '<div class="duelo-crown"><i class="ph ph-crown"></i></div>' : '') +
+                                fotoJ1 +
+                            '</div>' +
+                            '<div class="duelo-nombre">' + esc(j1.nombre) + '</div>' +
+                            '<div class="duelo-puntos ' + (lider === 1 ? 'lider' : '') + '">' + totalJ1 + '</div>' +
+                            '<div class="duelo-label">puntos totales</div>' +
+                        '</div>' +
+                        '<div class="duelo-centro">' +
+                            '<div class="duelo-diferencia">Dif. ' + diferencia + '</div>' +
+                            '<div class="duelo-barra-cont">' +
+                                '<div class="duelo-barra-fill" style="width:' + pctJ1 + '%"></div>' +
+                                '<div class="duelo-barra-marcador" style="left:' + pctJ1 + '%"></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="duelo-jugador">' +
+                            '<div class="duelo-foto-wrap">' +
+                                (lider === 2 ? '<div class="duelo-crown"><i class="ph ph-crown"></i></div>' : '') +
+                                fotoJ2 +
+                            '</div>' +
+                            '<div class="duelo-nombre">' + esc(j2.nombre) + '</div>' +
+                            '<div class="duelo-puntos ' + (lider === 2 ? 'lider' : '') + '">' + totalJ2 + '</div>' +
+                            '<div class="duelo-label">puntos totales</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="duelo-stats">' +
+                        '<div class="duelo-stat"><div class="duelo-stat-valor" style="color:#3b82f6">' + victoriasJ1 + '</div><div class="duelo-stat-label">Victorias ' + esc(j1.nombre.split(' ')[0]) + '</div></div>' +
+                        '<div class="duelo-stat"><div class="duelo-stat-valor" style="color:#6b7280">' + empates + '</div><div class="duelo-stat-label">Empates</div></div>' +
+                        '<div class="duelo-stat"><div class="duelo-stat-valor" style="color:#ef4444">' + victoriasJ2 + '</div><div class="duelo-stat-label">Victorias ' + esc(j2.nombre.split(' ')[0]) + '</div></div>' +
+                        '<div class="duelo-stat"><div class="duelo-stat-valor">' + promedioJ1 + '</div><div class="duelo-stat-label">Prom. ' + esc(j1.nombre.split(' ')[0]) + '</div></div>' +
+                        '<div class="duelo-stat"><div class="duelo-stat-valor">' + promedioJ2 + '</div><div class="duelo-stat-label">Prom. ' + esc(j2.nombre.split(' ')[0]) + '</div></div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        // ================== GRAFICA VICTORIAS ==================
+        function renderizarVictorias() {
+            const partidas = getPartidasActivas();
+            const victoriasJ1 = partidas.filter(p => (parseInt(p.puntosJ1) || 0) > (parseInt(p.puntosJ2) || 0)).length;
+            const victoriasJ2 = partidas.filter(p => (parseInt(p.puntosJ2) || 0) > (parseInt(p.puntosJ1) || 0)).length;
+            const maxVictorias = Math.max(victoriasJ1, victoriasJ2, 1);
+            const j1 = datos.jugadores[0];
+            const j2 = datos.jugadores[1];
+
+            if (partidas.length === 0) {
+                document.getElementById('victorias-body').innerHTML =
+                    '<div style="text-align:center;color:var(--text-muted);padding:20px 0;">' +
+                        '<i class="ph ph-chart-bar" style="font-size:28px;margin-bottom:8px;display:block;color:#d1d5db"></i>' +
+                        '<span style="font-size:12px">Todavia no hay partidas registradas</span>' +
+                    '</div>';
+                return;
+            }
+
+            document.getElementById('victorias-body').innerHTML =
+                '<div class="victoria-barra-wrap">' +
+                    '<div class="victoria-barra-cont" style="height:160px;">' +
+                        '<div class="victoria-barra j1" style="height:' + ((victoriasJ1 / maxVictorias) * 140) + 'px;">' +
+                            '<div class="victoria-barra-numero" style="color:#2563eb">' + victoriasJ1 + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="victoria-label">' + esc(j1.nombre.split(' ')[0]) + '</div>' +
+                    '<div class="victoria-sublabel">juegos ganados</div>' +
+                '</div>' +
+                '<div class="victoria-barra-wrap">' +
+                    '<div class="victoria-barra-cont" style="height:160px;">' +
+                        '<div class="victoria-barra j2" style="height:' + ((victoriasJ2 / maxVictorias) * 140) + 'px;">' +
+                            '<div class="victoria-barra-numero" style="color:#dc2626">' + victoriasJ2 + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="victoria-label">' + esc(j2.nombre.split(' ')[0]) + '</div>' +
+                    '<div class="victoria-sublabel">juegos ganados</div>' +
+                '</div>';
+        }
+
+        // ================== HISTORIAL ==================
+        function renderizarHistorial() {
+            const contenedor = document.getElementById('contenido-historial');
+            const partidas = getPartidasActivas();
+            if (partidas.length === 0) {
+                contenedor.innerHTML =
+                    '<div class="estado-vacio" style="padding:32px">' +
+                        '<i class="ph ph-clock-counter-clockwise"></i>' +
+                        '<p>Sin partidas registradas</p>' +
+                        '<p>Registra tu primera partida desde el panel izquierdo.</p>' +
+                    '</div>';
+                return;
+            }
+
+            const j1 = datos.jugadores[0].nombre;
+            const j2 = datos.jugadores[1].nombre;
+
+            let html = '<table class="tabla-historial"><thead><tr><th>Juego</th><th>Fecha</th><th>' + esc(j1) + '</th><th>' + esc(j2) + '</th><th></th></tr></thead><tbody>';
+
+            [...partidas].reverse().forEach((p, idx) => {
+                const realIdx = partidas.length - 1 - idx;
+                const pj1 = parseInt(p.puntosJ1) || 0;
+                const pj2 = parseInt(p.puntosJ2) || 0;
+                const ganadorJ1 = pj1 > pj2;
+                const ganadorJ2 = pj2 > pj1;
+                const iniciales = p.juego ? p.juego.substring(0, 2).toUpperCase() : '??';
+                const fotoThumb = p.foto
+                    ? '<img src="' + esc(p.foto) + '" class="foto-partida-thumb" onclick="abrirModalFoto(this.src)" alt="Foto">'
+                    : '<div class="icono-juego">' + esc(iniciales) + '</div>';
+
+                html += '<tr>' +
+                    '<td><div class="celda-juego">' + fotoThumb + '<div><div class="nombre-juego">' + esc(p.juego || 'Sin nombre') + '</div></div></div></td>' +
+                    '<td class="fecha-celda">' + formatearFecha(p.fecha) + '</td>' +
+                    '<td class="puntos-celda ' + (ganadorJ1 ? 'puntos-ganador' : '') + '">' + pj1 + '</td>' +
+                    '<td class="puntos-celda ' + (ganadorJ2 ? 'puntos-ganador' : '') + '">' + pj2 + '</td>' +
+                    '<td><button class="btn-eliminar" onclick="eliminarPartida(' + realIdx + ')"><i class="ph ph-trash"></i></button></td>' +
+                '</tr>';
+            });
+
+            html += '</tbody></table>';
+            contenedor.innerHTML = html;
+        }
+
+        // ================== GRAFICO EVOLUCION ==================
+        function renderizarGraficoEvolucion() {
+            const partidas = getPartidasActivas();
+            const mensaje = document.getElementById('grafico-mensaje');
+            const wrapper = document.getElementById('canvas-wrapper');
+            const canvas = document.getElementById('canvas-evolucion');
+
+            document.getElementById('leyenda-j1').textContent = datos.jugadores[0].nombre;
+            document.getElementById('leyenda-j2').textContent = datos.jugadores[1].nombre;
+
+            if (partidas.length < 2) {
+                mensaje.style.display = 'block';
+                wrapper.style.display = 'none';
+                return;
+            }
+            mensaje.style.display = 'none';
+            wrapper.style.display = 'block';
+
+            dibujarCanvasEvolucion(partidas, canvas);
+        }
+
+        function dibujarCanvasEvolucion(partidas, canvas) {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = (rect.width - 32) * dpr;
+            canvas.height = 300 * dpr;
+            canvas.style.width = (rect.width - 32) + 'px';
+            canvas.style.height = '300px';
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            const w = rect.width - 32;
+            const h = 300;
+            const pad = { top: 20, right: 20, bottom: 40, left: 50 };
+            const gw = w - pad.left - pad.right;
+            const gh = h - pad.top - pad.bottom;
+
+            // Calcular acumulados
+            let acc1 = 0, acc2 = 0;
+            const data1 = [], data2 = [];
+            partidas.forEach(p => {
+                acc1 += parseInt(p.puntosJ1) || 0;
+                acc2 += parseInt(p.puntosJ2) || 0;
+                data1.push(acc1);
+                data2.push(acc2);
+            });
+
+            const maxVal = Math.max(data1[data1.length - 1], data2[data2.length - 1], 1);
+            const n = partidas.length;
+
+            // Fondo
+            ctx.clearRect(0, 0, w, h);
+
+            // Grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = pad.top + gh - (i / 5) * gh;
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(pad.left + gw, y);
+                ctx.stroke();
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '11px Inter, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(Math.round((maxVal / 5) * i), pad.left - 8, y + 4);
+            }
+
+            // Eje X
+            ctx.fillStyle = '#9ca3af';
+            ctx.textAlign = 'center';
+            for (let i = 0; i < n; i++) {
+                const x = pad.left + (i / (n - 1)) * gw;
+                ctx.fillText(i + 1, x, h - 12);
+            }
+            ctx.fillText('Partida', w / 2, h - 2);
+
+            // Funcion helper para dibujar linea
+            function drawLine(data, color) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                data.forEach((val, i) => {
+                    const x = pad.left + (i / (n - 1)) * gw;
+                    const y = pad.top + gh - (val / maxVal) * gh;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                // Puntos
+                ctx.fillStyle = color;
+                data.forEach((val, i) => {
+                    const x = pad.left + (i / (n - 1)) * gw;
+                    const y = pad.top + gh - (val / maxVal) * gh;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }
+
+            drawLine(data1, '#3b82f6');
+            drawLine(data2, '#ef4444');
+        }
+
+        // ================== DESGLOSE JUEGOS (ESTADISTICAS) - TORTAS ==================
+        function renderizarDesgloseJuegos() {
+            const contenedor = document.getElementById('desglose-juegos-body');
+            const todas = getTodasLasPartidas();
+            if (todas.length === 0) {
+                contenedor.innerHTML =
+                    '<div class="estado-vacio">' +
+                        '<i class="ph ph-chart-pie-slice"></i>' +
+                        '<p>Sin datos historicos</p>' +
+                        '<p>Registra partidas para ver el rendimiento por juego.</p>' +
+                    '</div>';
+                return;
+            }
+
+            const porJuego = {};
+            todas.forEach(p => {
+                const nombre = (p.juego || 'Sin nombre').trim();
+                if (!porJuego[nombre]) porJuego[nombre] = { partidas: 0, j1: 0, j2: 0, empates: 0, puntosJ1: 0, puntosJ2: 0 };
+                porJuego[nombre].partidas++;
+                const pj1 = parseInt(p.puntosJ1) || 0;
+                const pj2 = parseInt(p.puntosJ2) || 0;
+                porJuego[nombre].puntosJ1 += pj1;
+                porJuego[nombre].puntosJ2 += pj2;
+                if (pj1 > pj2) porJuego[nombre].j1++;
+                else if (pj2 > pj1) porJuego[nombre].j2++;
+                else porJuego[nombre].empates++;
+            });
+
+            const j1 = datos.jugadores[0];
+            const j2 = datos.jugadores[1];
+
+            let html = '<div class="ranking-juegos-grid">';
+            Object.keys(porJuego).sort((a, b) => porJuego[b].partidas - porJuego[a].partidas).forEach((juego, idx) => {
+                const s = porJuego[juego];
+                const total = s.j1 + s.j2 + s.empates || 1;
+                const pctJ1 = (s.j1 / total) * 100;
+                const pctJ2 = (s.j2 / total) * 100;
+                const pctEmp = (s.empates / total) * 100;
+
+                let dominador = '';
+                if (s.j1 > s.j2) dominador = '<strong style="color:#3b82f6">' + esc(j1.nombre.split(' ')[0]) + '</strong> gana mas aqui';
+                else if (s.j2 > s.j1) dominador = '<strong style="color:#ef4444">' + esc(j2.nombre.split(' ')[0]) + '</strong> gana mas aqui';
+                else dominador = '<strong style="color:#6b7280">Empatados</strong>';
+
+                const canvasId = 'torta-juego-' + idx;
+
+                html += '<div class="ranking-juego-card">' +
+                    '<div class="ranking-juego-nombre"><i class="ph ph-dice-five"></i> ' + esc(juego) + ' <span style="color:var(--text-muted);font-weight:500">(' + s.partidas + ' partidas)</span></div>' +
+                    '<div style="display:flex;align-items:center;gap:16px;margin:12px 0;">' +
+                        '<div style="flex-shrink:0;">' +
+                            '<canvas id="' + canvasId + '" width="120" height="120" style="width:120px;height:120px;"></canvas>' +
+                        '</div>' +
+                        '<div style="flex:1;">' +
+                            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px;">' +
+                                '<div style="width:10px;height:10px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>' +
+                                '<span>' + esc(j1.nombre.split(' ')[0]) + ': <strong>' + s.j1 + '</strong> (' + pctJ1.toFixed(0) + '%)</span>' +
+                            '</div>' +
+                            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px;">' +
+                                '<div style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>' +
+                                '<span>' + esc(j2.nombre.split(' ')[0]) + ': <strong>' + s.j2 + '</strong> (' + pctJ2.toFixed(0) + '%)</span>' +
+                            '</div>' +
+                            (s.empates > 0 ? '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px;">' +
+                                '<div style="width:10px;height:10px;border-radius:50%;background:#9ca3af;flex-shrink:0;"></div>' +
+                                '<span>Empates: <strong>' + s.empates + '</strong> (' + pctEmp.toFixed(0) + '%)</span>' +
+                            '</div>' : '') +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="ranking-dominador">' + dominador + '</div>' +
+                '</div>';
+            });
+            html += '</div>';
+            contenedor.innerHTML = html;
+
+            // Dibujar las tortas
+            Object.keys(porJuego).sort((a, b) => porJuego[b].partidas - porJuego[a].partidas).forEach((juego, idx) => {
+                const s = porJuego[juego];
+                const total = s.j1 + s.j2 + s.empates || 1;
+                const valores = [s.j1, s.j2];
+                const colores = ['#3b82f6', '#ef4444'];
+                if (s.empates > 0) {
+                    valores.push(s.empates);
+                    colores.push('#9ca3af');
+                }
+                dibujarTorta('torta-juego-' + idx, valores, colores);
+            });
+        }
+
+        function dibujarTorta(canvasId, valores, colores) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const size = 120;
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+            ctx.scale(dpr, dpr);
+
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size / 2 - 8;
+            const total = valores.reduce((a, b) => a + b, 0) || 1;
+
+            let startAngle = -Math.PI / 2;
+            valores.forEach((val, i) => {
+                const sliceAngle = (val / total) * 2 * Math.PI;
+                const endAngle = startAngle + sliceAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = colores[i];
+                ctx.fill();
+
+                // Borde blanco entre slices
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                startAngle = endAngle;
+            });
+
+            // Circulo blanco central (donut)
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * 0.55, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+
+            // Texto central
+            ctx.fillStyle = '#111827';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(total + '', cx, cy - 2);
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.fillText('partidas', cx, cy + 12);
+        }
+
+        // ================== LISTADO DE TORNEOS ==================
+        function renderizarTorneos() {
+            const contenedor = document.getElementById('contenido-torneos');
+            const resumenSection = document.getElementById('resumen-torneos-section');
+
+            const torneosCompletados = datos.torneos.filter(t => t.estado === 'completado');
+            if (torneosCompletados.length > 0) {
+                const j1 = datos.jugadores[0];
+                const j2 = datos.jugadores[1];
+
+                let resumenHtml = '<div class="resumen-torneos-titulo"><i class="ph ph-medal"></i>Resumen de Torneos Finalizados</div><div class="resumen-torneos-grid">';
+
+                [...torneosCompletados].reverse().forEach((t) => {
+                    const realIdx = datos.torneos.indexOf(t);
+                    const partidas = t.partidas || [];
+                    const totalJ1 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ1) || 0), 0);
+                    const totalJ2 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ2) || 0), 0);
+                    const lider = totalJ1 > totalJ2 ? 1 : totalJ2 > totalJ1 ? 2 : 0;
+                    const ganadorNombre = lider === 1 ? j1.nombre : lider === 2 ? j2.nombre : 'Empate';
+                    const victoriasJ1 = partidas.filter(p => (parseInt(p.puntosJ1) || 0) > (parseInt(p.puntosJ2) || 0)).length;
+                    const victoriasJ2 = partidas.filter(p => (parseInt(p.puntosJ2) || 0) > (parseInt(p.puntosJ1) || 0)).length;
+
+                    const fotoJ1 = j1.foto
+                        ? '<img src="' + esc(j1.foto) + '" class="resumen-torneo-foto ' + (lider === 1 ? 'lider' : '') + '" alt="' + esc(j1.nombre) + '">'
+                        : '<div class="resumen-torneo-avatar ' + (lider === 1 ? 'lider' : '') + '"><i class="ph ph-user"></i></div>';
+                    const fotoJ2 = j2.foto
+                        ? '<img src="' + esc(j2.foto) + '" class="resumen-torneo-foto ' + (lider === 2 ? 'lider' : '') + '" alt="' + esc(j2.nombre) + '">'
+                        : '<div class="resumen-torneo-avatar ' + (lider === 2 ? 'lider' : '') + '"><i class="ph ph-user"></i></div>';
+
+                    resumenHtml += '<div class="resumen-torneo-card ' + t.estado + '" onclick="verDetalleTorneo(' + realIdx + ')">' +
+                        '<div class="resumen-torneo-header">' +
+                            '<div>' +
+                                '<div class="resumen-torneo-nombre">' + esc(t.nombre) + '</div>' +
+                                '<div class="resumen-torneo-fecha">' + formatearFecha(t.fecha) + ' &middot; ' + partidas.length + ' partidas</div>' +
+                            '</div>' +
+                            '<span class="resumen-torneo-badge estado-completado"><i class="ph ph-check-circle" style="font-size:11px"></i> Completado</span>' +
+                        '</div>' +
+                        '<div class="resumen-torneo-ganador">' +
+                            '<i class="ph ph-crown"></i>' +
+                            '<div>' +
+                                '<div class="resumen-torneo-ganador-texto">Ganador: ' + esc(ganadorNombre) + '</div>' +
+                                '<div class="resumen-torneo-ganador-puntos">' + Math.max(totalJ1, totalJ2) + ' puntos totales</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="resumen-torneo-duelo">' +
+                            '<div class="resumen-torneo-jugador">' + fotoJ1 +
+                                '<div class="resumen-torneo-info">' +
+                                    '<div class="resumen-torneo-nombre-jugador">' + esc(j1.nombre.split(' ')[0]) + '</div>' +
+                                    '<div class="resumen-torneo-puntos-jugador ' + (lider === 1 ? 'lider' : '') + '">' + totalJ1 + '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="resumen-torneo-vs">VS</div>' +
+                            '<div class="resumen-torneo-jugador der">' + fotoJ2 +
+                                '<div class="resumen-torneo-info">' +
+                                    '<div class="resumen-torneo-nombre-jugador">' + esc(j2.nombre.split(' ')[0]) + '</div>' +
+                                    '<div class="resumen-torneo-puntos-jugador ' + (lider === 2 ? 'lider' : '') + '">' + totalJ2 + '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="resumen-torneo-stats">' +
+                            '<div class="resumen-torneo-stat"><strong>' + victoriasJ1 + '</strong> victorias ' + esc(j1.nombre.split(' ')[0]) + '</div>' +
+                            '<div class="resumen-torneo-stat"><strong>' + victoriasJ2 + '</strong> victorias ' + esc(j2.nombre.split(' ')[0]) + '</div>' +
+                        '</div>' +
+                    '</div>';
+                });
+
+                resumenHtml += '</div>';
+                resumenSection.innerHTML = resumenHtml;
+            } else {
+                resumenSection.innerHTML = '';
+            }
+
+            if (datos.torneos.length === 0) {
+                contenedor.innerHTML = '<div class="estado-vacio"><i class="ph ph-trophy"></i><p>No hay torneos creados</p><p>Crea tu primer torneo con el boton de arriba.</p></div>';
+                return;
+            }
+
+            const j1n = datos.jugadores[0].nombre;
+            const j2n = datos.jugadores[1].nombre;
+
+            let html = '<div class="tabla-torneos-wrap"><table class="tabla-torneos"><thead><tr><th>Torneo</th><th>Fecha</th><th>Estado</th><th>Partidas</th><th>Resultado</th><th>Acciones</th></tr></thead><tbody>';
+
+            [...datos.torneos].reverse().forEach((t, idx) => {
+                const realIdx = datos.torneos.length - 1 - idx;
+                const estadoClass = {
+                    'completado': 'estado-completado',
+                    'en-curso': 'estado-en-curso',
+                    'proximo': 'estado-proximo',
+                    'cancelado': 'estado-cancelado'
+                }[t.estado] || 'estado-proximo';
+                const estadoText = {
+                    'completado': 'Completado',
+                    'en-curso': 'En curso',
+                    'proximo': 'Proximo',
+                    'cancelado': 'Cancelado'
+                }[t.estado] || t.estado;
+                const count = (t.partidas || []).length;
+                const totalJ1 = (t.partidas || []).reduce((s, p) => s + (parseInt(p.puntosJ1) || 0), 0);
+                const totalJ2 = (t.partidas || []).reduce((s, p) => s + (parseInt(p.puntosJ2) || 0), 0);
+                const ganador = totalJ1 > totalJ2 ? j1n.split(' ')[0] : totalJ2 > totalJ1 ? j2n.split(' ')[0] : 'Empate';
+                const colorGanador = totalJ1 > totalJ2 ? '#3b82f6' : totalJ2 > totalJ1 ? '#ef4444' : '#6b7280';
+
+                html += '<tr onclick="verDetalleTorneo(' + realIdx + ')">' +
+                    '<td>' +
+                        '<div class="torneo-nombre-celda">' + esc(t.nombre) + '</div>' +
+                        '<div class="torneo-jugadores-celda">' +
+                            '<div class="torneo-jugador-info"><i class="ph ph-user" style="font-size:11px"></i> ' + esc(j1n) + '</div>' +
+                            '<div class="torneo-jugador-info"><i class="ph ph-user" style="font-size:11px"></i> ' + esc(j2n) + '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td class="torneo-fecha-celda">' + formatearFecha(t.fecha) + '</td>' +
+                    '<td><span class="torneo-estado-badge ' + estadoClass + '">' + estadoText + '</span></td>' +
+                    '<td class="torneo-partidas-count">' + count + ' partidas</td>' +
+                    '<td>' +
+                        (t.estado === 'completado' 
+                            ? '<div style="font-size:12px;font-weight:600;color:' + colorGanador + '"><i class="ph ph-trophy" style="font-size:10px"></i> ' + esc(ganador) + ' (' + Math.max(totalJ1,totalJ2) + ' pts)</div><div style="font-size:11px;color:var(--text-muted)">' + totalJ1 + ' - ' + totalJ2 + '</div>'
+                            : '<span style="font-size:11px;color:var(--text-muted)">En progreso</span>') +
+                    '</td>' +
+                    '<td onclick="event.stopPropagation()">' +
+                        (t.estado === 'en-curso' ? '<button class="btn-finalizar" onclick="finalizarTorneo(' + realIdx + ', event)"><i class="ph ph-flag"></i>Finalizar</button>' : '') +
+                        '<button class="btn-eliminar" onclick="eliminarTorneo(' + realIdx + ', event)" title="Eliminar torneo"><i class="ph ph-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            contenedor.innerHTML = html;
+        }
+
+        // ================== ACCIONES ==================
+        function guardarPartida() {
+            const t = getTorneoActivo();
+            if (!t) {
+                mostrarMensaje('No hay torneo en curso. Crea uno primero.', 'error');
+                return;
+            }
+
+            const juego = document.getElementById('nombre-juego').value.trim();
+            const fecha = document.getElementById('fecha-partida').value;
+            const puntosJ1 = parseInt(document.getElementById('puntos-j1').value) || 0;
+            const puntosJ2 = parseInt(document.getElementById('puntos-j2').value) || 0;
+
+            if (!juego || !fecha) {
+                mostrarMensaje('Completa todos los campos', 'error');
+                return;
+            }
+
+            if (!t.partidas) t.partidas = [];
+            t.partidas.push({ juego, fecha, puntosJ1, puntosJ2, id: Date.now(), foto: fotoPartidaPendiente });
+
+            agregarJuegoACatalogo(juego);
+            guardarDatos();
+            renderizarTodo();
+            mostrarMensaje('Partida guardada correctamente', 'exito');
+
+            document.getElementById('nombre-juego').value = '';
+            document.getElementById('puntos-j1').value = 0;
+            document.getElementById('puntos-j2').value = 0;
+            limpiarFotoPartida();
+        }
+
+        function eliminarPartida(idx) {
+            const t = getTorneoActivo();
+            if (!t || !t.partidas) return;
+            if (!confirm('Eliminar esta partida?')) return;
+            t.partidas.splice(idx, 1);
+            guardarDatos();
+            renderizarTodo();
+        }
+
+        function crearTorneo() {
+            const nombre = document.getElementById('crear-torneo-nombre').value.trim();
+            const fecha = document.getElementById('crear-torneo-fecha').value;
+            const estado = document.getElementById('crear-torneo-estado').value;
+
+            if (!nombre || !fecha) {
+                alert('Completa todos los campos');
+                return;
+            }
+
+            if (estado === 'en-curso') {
+                datos.torneos.forEach(t => { if (t.estado === 'en-curso') t.estado = 'completado'; });
+            }
+
+            datos.torneos.push({
+                id: Date.now(),
+                nombre,
+                fecha,
+                estado,
+                partidas: []
+            });
+
+            guardarDatos();
+            cerrarModalCrearDirecto();
+            renderizarTodo();
+            mostrarMensaje('Torneo creado correctamente', 'exito');
+            document.getElementById('crear-torneo-nombre').value = '';
+        }
+
+        function finalizarTorneo(idx, event) {
+            if (event) event.stopPropagation();
+            const t = datos.torneos[idx];
+            if (!confirm('Finalizar el torneo "' + t.nombre + '"? Se mostrara el resumen con todas las partidas y el podio final.')) return;
+
+            t.estado = 'completado';
+            guardarDatos();
+            renderizarTodo();
+            lanzarConfetti();
+            mostrarModalCierre(idx);
+        }
+
+        // ================== MODAL CIERRE DE TORNEO ==================
+        function mostrarModalCierre(idx) {
+            const t = datos.torneos[idx];
+            const j1 = datos.jugadores[0];
+            const j2 = datos.jugadores[1];
+            const partidas = t.partidas || [];
+            const totalJ1 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ1) || 0), 0);
+            const totalJ2 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ2) || 0), 0);
+            const lider = totalJ1 > totalJ2 ? 1 : totalJ2 > totalJ1 ? 2 : 0;
+            const ganadorNombre = lider === 1 ? j1.nombre : lider === 2 ? j2.nombre : 'Empate';
+            const victoriasJ1 = partidas.filter(p => (parseInt(p.puntosJ1) || 0) > (parseInt(p.puntosJ2) || 0)).length;
+            const victoriasJ2 = partidas.filter(p => (parseInt(p.puntosJ2) || 0) > (parseInt(p.puntosJ1) || 0)).length;
+            const empates = partidas.length - victoriasJ1 - victoriasJ2;
+
+            document.getElementById('cierre-torneo-nombre').textContent = t.nombre;
+
+            let body = '<div class="cierre-seccion">';
+
+            if (lider !== 0) {
+                body += '<div class="cierre-ganador-banner">' +
+                    '<i class="ph ph-crown"></i>' +
+                    '<div>' +
+                        '<div class="cierre-ganador-banner-texto">¡' + esc(ganadorNombre) + ' es el ganador!</div>' +
+                        '<div class="cierre-ganador-banner-sub">' + Math.max(totalJ1, totalJ2) + ' puntos totales &middot; ' + (lider === 1 ? victoriasJ1 : victoriasJ2) + ' victorias</div>' +
+                    '</div>' +
+                '</div>';
+            } else {
+                body += '<div class="cierre-ganador-banner">' +
+                    '<i class="ph ph-handshake"></i>' +
+                    '<div>' +
+                        '<div class="cierre-ganador-banner-texto">¡Empate!</div>' +
+                        '<div class="cierre-ganador-banner-sub">Ambos jugadores terminaron con ' + totalJ1 + ' puntos</div>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            const foto1 = j1.foto
+                ? '<img src="' + esc(j1.foto) + '" class="cierre-podio-foto ' + (lider === 1 ? 'primero' : 'segundo') + '" alt="' + esc(j1.nombre) + '">'
+                : '<div class="cierre-podio-avatar ' + (lider === 1 ? 'primero' : 'segundo') + '"><i class="ph ph-user"></i></div>';
+            const foto2 = j2.foto
+                ? '<img src="' + esc(j2.foto) + '" class="cierre-podio-foto ' + (lider === 2 ? 'primero' : 'segundo') + '" alt="' + esc(j2.nombre) + '">'
+                : '<div class="cierre-podio-avatar ' + (lider === 2 ? 'primero' : 'segundo') + '"><i class="ph ph-user"></i></div>';
+
+            body += '<div class="cierre-podio">' +
+                '<div class="cierre-podio-puesto ' + (lider === 1 ? 'primero' : 'segundo') + '">' +
+                    (lider === 1 ? '<div class="cierre-podio-crown"><i class="ph ph-crown"></i></div>' : '') +
+                    foto1 +
+                    '<div class="cierre-podio-posicion ' + (lider === 1 ? 'primero' : 'segundo') + '">' + (lider === 1 ? '1° Ganador' : '2° Lugar') + '</div>' +
+                    '<div class="cierre-podio-nombre">' + esc(j1.nombre) + '</div>' +
+                    '<div class="cierre-podio-puntos ' + (lider === 1 ? 'primero' : '') + '">' + totalJ1 + ' pts</div>' +
+                    '<div class="cierre-podio-label">' + victoriasJ1 + ' victorias' + (empates > 0 ? ' &middot; ' + empates + ' empates' : '') + '</div>' +
+                    '<div class="cierre-podio-base ' + (lider === 1 ? 'primero' : 'segundo') + '">' + (lider === 1 ? '1' : '2') + '</div>' +
+                '</div>' +
+                '<div class="cierre-podio-puesto ' + (lider === 2 ? 'primero' : 'segundo') + '">' +
+                    (lider === 2 ? '<div class="cierre-podio-crown"><i class="ph ph-crown"></i></div>' : '') +
+                    foto2 +
+                    '<div class="cierre-podio-posicion ' + (lider === 2 ? 'primero' : 'segundo') + '">' + (lider === 2 ? '1° Ganador' : '2° Lugar') + '</div>' +
+                    '<div class="cierre-podio-nombre">' + esc(j2.nombre) + '</div>' +
+                    '<div class="cierre-podio-puntos ' + (lider === 2 ? 'primero' : '') + '">' + totalJ2 + ' pts</div>' +
+                    '<div class="cierre-podio-label">' + victoriasJ2 + ' victorias' + (empates > 0 ? ' &middot; ' + empates + ' empates' : '') + '</div>' +
+                    '<div class="cierre-podio-base ' + (lider === 2 ? 'primero' : 'segundo') + '">' + (lider === 2 ? '1' : '2') + '</div>' +
+                '</div>' +
+            '</div></div>';
+
+            body += '<div class="cierre-seccion">' +
+                '<div class="cierre-seccion-titulo"><i class="ph ph-chart-bar"></i>Estadisticas del Torneo</div>' +
+                '<div class="cierre-stats-grid">' +
+                    '<div class="cierre-stat-box">' +
+                        '<div class="cierre-stat-valor" style="color:#3b82f6">' + totalJ1 + '</div>' +
+                        '<div class="cierre-stat-label">Pts ' + esc(j1.nombre.split(' ')[0]) + '</div>' +
+                    '</div>' +
+                    '<div class="cierre-stat-box">' +
+                        '<div class="cierre-stat-valor" style="color:#6b7280">' + partidas.length + '</div>' +
+                        '<div class="cierre-stat-label">Partidas</div>' +
+                    '</div>' +
+                    '<div class="cierre-stat-box">' +
+                        '<div class="cierre-stat-valor" style="color:#6b7280">' + empates + '</div>' +
+                        '<div class="cierre-stat-label">Empates</div>' +
+                    '</div>' +
+                    '<div class="cierre-stat-box">' +
+                        '<div class="cierre-stat-valor" style="color:#ef4444">' + totalJ2 + '</div>' +
+                        '<div class="cierre-stat-label">Pts ' + esc(j2.nombre.split(' ')[0]) + '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+
+            if (partidas.length > 0) {
+                body += '<div class="cierre-seccion">' +
+                    '<div class="cierre-seccion-titulo"><i class="ph ph-list-dashes"></i>Partidas Jugadas</div>' +
+                    '<table class="cierre-tabla-partidas">' +
+                    '<thead><tr><th>Juego</th><th>Fecha</th><th>' + esc(j1.nombre.split(' ')[0]) + '</th><th>' + esc(j2.nombre.split(' ')[0]) + '</th></tr></thead>' +
+                    '<tbody>';
+
+                [...partidas].reverse().forEach(p => {
+                    const pj1 = parseInt(p.puntosJ1) || 0;
+                    const pj2 = parseInt(p.puntosJ2) || 0;
+                    const ganadorJ1 = pj1 > pj2;
+                    const ganadorJ2 = pj2 > pj1;
+                    const iniciales = p.juego ? p.juego.substring(0, 2).toUpperCase() : '??';
+
+                    let claseJ1 = '';
+                    let claseJ2 = '';
+                    if (ganadorJ1) { claseJ1 = 'cierre-ganador-j1'; }
+                    else if (ganadorJ2) { claseJ2 = 'cierre-ganador-j2'; }
+                    else { claseJ1 = 'cierre-empate'; claseJ2 = 'cierre-empate'; }
+
+                    body += '<tr>' +
+                        '<td>' +
+                            '<div class="cierre-juego-celda">' +
+                                '<div class="cierre-juego-icono">' + esc(iniciales) + '</div>' +
+                                '<div>' +
+                                    '<div class="cierre-juego-nombre">' + esc(p.juego) + '</div>' +
+                                    '<div class="cierre-juego-fecha">' + formatearFecha(p.fecha) + '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td style="color:var(--text-muted);font-size:12px">' + formatearFecha(p.fecha) + '</td>' +
+                        '<td class="' + claseJ1 + '">' + pj1 + '</td>' +
+                        '<td class="' + claseJ2 + '">' + pj2 + '</td>' +
+                    '</tr>';
+                });
+
+                body += '</tbody></table></div>';
+            } else {
+                body += '<div class="cierre-seccion"><div class="estado-vacio" style="padding:20px"><i class="ph ph-game-controller"></i><p>Sin partidas registradas</p><p>Este torneo no tiene partidas jugadas.</p></div></div>';
+            }
+
+            body += '<div class="cierre-seccion" style="padding-top:12px;">' +
+                '<button class="cierre-boton" onclick="cerrarModalCierreDirecto()">' +
+                    '<i class="ph ph-check-circle"></i> Cerrar y volver a Torneos' +
+                '</button>' +
+            '</div>';
+
+            document.getElementById('cierre-body').innerHTML = body;
+            document.getElementById('modal-cierre-overlay').classList.add('activo');
+        }
+
+        function cerrarModalCierreDirecto() {
+            document.getElementById('modal-cierre-overlay').classList.remove('activo');
+        }
+        function cerrarModalCierre(e) {
+            if (e.target === e.currentTarget) cerrarModalCierreDirecto();
+        }
+
+        function eliminarTorneo(idx, event) {
+            if (event) event.stopPropagation();
+            const t = datos.torneos[idx];
+            if (!confirm('Eliminar el torneo "' + t.nombre + '" y todas sus ' + (t.partidas || []).length + ' partidas?')) return;
+            datos.torneos.splice(idx, 1);
+            guardarDatos();
+            renderizarTodo();
+        }
+
+        // ================== MODAL DETALLE TORNEO ==================
+        function verDetalleTorneo(idx) {
+            const t = datos.torneos[idx];
+            const j1 = datos.jugadores[0];
+            const j2 = datos.jugadores[1];
+            const partidas = t.partidas || [];
+            const totalJ1 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ1) || 0), 0);
+            const totalJ2 = partidas.reduce((s, p) => s + (parseInt(p.puntosJ2) || 0), 0);
+            const ganadorNombre = totalJ1 > totalJ2 ? j1.nombre : totalJ2 > totalJ1 ? j2.nombre : 'Empate';
+            const victoriasJ1 = partidas.filter(p => (parseInt(p.puntosJ1) || 0) > (parseInt(p.puntosJ2) || 0)).length;
+            const victoriasJ2 = partidas.filter(p => (parseInt(p.puntosJ2) || 0) > (parseInt(p.puntosJ1) || 0)).length;
+            const empates = partidas.length - victoriasJ1 - victoriasJ2;
+
+            document.getElementById('modal-detalle-titulo').textContent = t.nombre;
+
+            let body = '<div class="modal-seccion">' +
+                '<div class="modal-seccion-titulo"><i class="ph ph-info"></i>Resumen General</div>' +
+                '<div class="resumen-grid">' +
+                    '<div class="resumen-item"><div class="resumen-label">Fecha de inicio</div><div class="resumen-valor">' + formatearFecha(t.fecha) + '</div></div>' +
+                    '<div class="resumen-item"><div class="resumen-label">Partidas jugadas</div><div class="resumen-valor">' + partidas.length + '</div></div>' +
+                    '<div class="resumen-item"><div class="resumen-label">Estado</div><div class="resumen-valor">' + (t.estado === 'completado' ? 'Completado' : t.estado === 'en-curso' ? 'En curso' : t.estado === 'proximo' ? 'Proximo' : t.estado) + '</div></div>' +
+                    '<div class="resumen-item"><div class="resumen-label">Ganador</div><div class="resumen-valor" style="color:' + (totalJ1 > totalJ2 ? '#3b82f6' : totalJ2 > totalJ1 ? '#ef4444' : '#6b7280') + '">' + esc(ganadorNombre) + '</div></div>' +
+                    '<div class="resumen-item"><div class="resumen-label">Puntos ' + esc(j1.nombre.split(' ')[0]) + '</div><div class="resumen-valor" style="color:#3b82f6">' + totalJ1 + '</div></div>' +
+                    '<div class="resumen-item"><div class="resumen-label">Puntos ' + esc(j2.nombre.split(' ')[0]) + '</div><div class="resumen-valor" style="color:#ef4444">' + totalJ2 + '</div></div>' +
+                '</div>' +
+            '</div>';
+
+            if (partidas.length > 0) {
+                body += '<div class="modal-seccion">' +
+                    '<div class="modal-seccion-titulo"><i class="ph ph-list-dashes"></i>Partidas del Torneo</div>' +
+                    '<ul class="lista-juegos">';
+                [...partidas].reverse().forEach(p => {
+                    const iniciales = p.juego ? p.juego.substring(0, 2).toUpperCase() : '??';
+                    const ganadorJ1 = (parseInt(p.puntosJ1) || 0) > (parseInt(p.puntosJ2) || 0);
+                    const ganadorJ2 = (parseInt(p.puntosJ2) || 0) > (parseInt(p.puntosJ1) || 0);
+                    const colorPuntos = ganadorJ1 ? 'color:#3b82f6' : ganadorJ2 ? 'color:#ef4444' : 'color:#6b7280';
+                    const fotoIcono = p.foto
+                        ? '<img src="' + esc(p.foto) + '" style="width:28px;height:28px;border-radius:4px;object-fit:cover;cursor:pointer;" onclick="abrirModalFoto(this.src)">'
+                        : '<div class="juego-icono">' + esc(iniciales) + '</div>';
+                    body += '<li>' +
+                        fotoIcono +
+                        '<div class="juego-info">' +
+                            '<div class="juego-nombre">' + esc(p.juego) + '</div>' +
+                            '<div class="juego-fecha">' + formatearFecha(p.fecha) + '</div>' +
+                        '</div>' +
+                        '<div class="juego-puntos" style="' + colorPuntos + '">' + p.puntosJ1 + ' - ' + p.puntosJ2 + '</div>' +
+                    '</li>';
+                });
+                body += '</ul></div>';
+
+                const lider = totalJ1 > totalJ2 ? 1 : totalJ2 > totalJ1 ? 2 : 0;
+                const foto1 = j1.foto
+                    ? '<img src="' + esc(j1.foto) + '" class="podio-foto ' + (lider === 1 ? 'primero' : 'segundo') + '" alt="' + esc(j1.nombre) + '">'
+                    : '<div class="podio-avatar ' + (lider === 1 ? 'primero' : 'segundo') + '"><i class="ph ph-user"></i></div>';
+                const foto2 = j2.foto
+                    ? '<img src="' + esc(j2.foto) + '" class="podio-foto ' + (lider === 2 ? 'primero' : 'segundo') + '" alt="' + esc(j2.nombre) + '">'
+                    : '<div class="podio-avatar ' + (lider === 2 ? 'primero' : 'segundo') + '"><i class="ph ph-user"></i></div>';
+
+                body += '<div class="modal-seccion">' +
+                    '<div class="modal-seccion-titulo"><i class="ph ph-trophy"></i>Podio Final</div>' +
+                    '<div class="podio-container">' +
+                        '<div class="podio-puesto ' + (lider === 1 ? 'primero' : 'segundo') + '">' +
+                            foto1 +
+                            '<div class="podio-posicion ' + (lider === 1 ? 'primero' : 'segundo') + '">' + (lider === 1 ? '1&deg;' : '2&deg;') + '</div>' +
+                            '<div class="podio-nombre">' + esc(j1.nombre) + '</div>' +
+                            '<div class="podio-puntos">' + totalJ1 + ' pts &middot; ' + victoriasJ1 + ' victorias</div>' +
+                            '<div class="podio-base ' + (lider === 1 ? 'primero' : 'segundo') + '">' + (lider === 1 ? '1' : '2') + '</div>' +
+                        '</div>' +
+                        '<div class="podio-puesto ' + (lider === 2 ? 'primero' : 'segundo') + '">' +
+                            foto2 +
+                            '<div class="podio-posicion ' + (lider === 2 ? 'primero' : 'segundo') + '">' + (lider === 2 ? '1&deg;' : '2&deg;') + '</div>' +
+                            '<div class="podio-nombre">' + esc(j2.nombre) + '</div>' +
+                            '<div class="podio-puntos">' + totalJ2 + ' pts &middot; ' + victoriasJ2 + ' victorias</div>' +
+                            '<div class="podio-base ' + (lider === 2 ? 'primero' : 'segundo') + '">' + (lider === 2 ? '1' : '2') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            } else {
+                body += '<div class="modal-seccion"><div class="estado-vacio" style="padding:24px"><i class="ph ph-game-controller"></i><p>Sin partidas registradas</p><p>Este torneo aun no tiene partidas.</p></div></div>';
+            }
+
+            document.getElementById('modal-detalle-body').innerHTML = body;
+            document.getElementById('modal-detalle-overlay').classList.add('activo');
+        }
+
+        // ================== MODALES ==================
+        function abrirModalCrearTorneo() {
+            document.getElementById('modal-crear-overlay').classList.add('activo');
+        }
+        function cerrarModalCrearDirecto() {
+            document.getElementById('modal-crear-overlay').classList.remove('activo');
+        }
+        function cerrarModalCrear(e) {
+            if (e.target === e.currentTarget) cerrarModalCrearDirecto();
+        }
+
+        function abrirModalEditar() {
+            document.getElementById('modal-nombre-j1').value = datos.jugadores[0].nombre;
+            document.getElementById('modal-nombre-j2').value = datos.jugadores[1].nombre;
+            actualizarPreviewFoto(1);
+            actualizarPreviewFoto(2);
+            document.getElementById('modal-editar-overlay').classList.add('activo');
+        }
+        function cerrarModalEditarDirecto() {
+            document.getElementById('modal-editar-overlay').classList.remove('activo');
+        }
+        function cerrarModalEditar(e) {
+            if (e.target === e.currentTarget) cerrarModalEditarDirecto();
+        }
+
+        function guardarJugadores() {
+            datos.jugadores[0].nombre = document.getElementById('modal-nombre-j1').value.trim() || 'Jugador 1';
+            datos.jugadores[1].nombre = document.getElementById('modal-nombre-j2').value.trim() || 'Jugador 2';
+            guardarDatos();
+            cerrarModalEditarDirecto();
+            renderizarTodo();
+        }
+
+        function cerrarModalDetalleDirecto() {
+            document.getElementById('modal-detalle-overlay').classList.remove('activo');
+        }
+        function cerrarModalDetalle(e) {
+            if (e.target === e.currentTarget) cerrarModalDetalleDirecto();
+        }
+
+        // ================== FOTOS JUGADORES ==================
+        function procesarFoto(jugador, input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                datos.jugadores[jugador - 1].foto = e.target.result;
+                actualizarPreviewFoto(jugador);
+                guardarDatos();
+                renderizarTodo();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function actualizarPreviewFoto(jugador) {
+            const foto = datos.jugadores[jugador - 1].foto;
+            const img = document.getElementById('modal-foto-j' + jugador);
+            const avatar = document.getElementById('modal-avatar-j' + jugador);
+            if (foto) {
+                img.src = foto;
+                img.style.display = 'block';
+                avatar.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                avatar.style.display = 'flex';
+            }
+        }
+
+        // ================== CONFETTI ==================
+        function lanzarConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            const colores = ['#ef4444', '#3b82f6', '#eab308', '#22c55e', '#a855f7', '#f97316', '#ec4899'];
+            for (let i = 0; i < 120; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.background = colores[Math.floor(Math.random() * colores.length)];
+                piece.style.animationDelay = Math.random() * 2 + 's';
+                piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                piece.style.width = (Math.random() * 8 + 6) + 'px';
+                piece.style.height = (Math.random() * 12 + 8) + 'px';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                container.appendChild(piece);
+            }
+            setTimeout(() => { container.innerHTML = ''; }, 5000);
+        }
+
+        // ================== VISTAS ==================
+        function cambiarVista(vista, el) {
+            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+            document.getElementById('vista-' + vista).classList.add('activa');
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            if (el) el.classList.add('active');
+            if (vista === 'torneos') renderizarTorneos();
+            if (vista === 'estadisticas') {
+                renderizarGraficoEvolucion();
+                renderizarDesgloseJuegos();
+            }
+        }
+        function volverAlDashboard() {
+            cambiarVista('dashboard', document.querySelector('.nav-links a:first-child'));
+        }
+
+        // ================== UTILS ==================
+        function esc(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function formatearFecha(fechaStr) {
+            if (!fechaStr) return '-';
+            const f = new Date(fechaStr + 'T00:00:00');
+            return f.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        function mostrarMensaje(texto, tipo) {
+            const m = document.getElementById('mensaje');
+            m.textContent = texto;
+            m.className = 'mensaje ' + tipo;
+            setTimeout(() => m.className = 'mensaje', 3000);
+        }
+
+        // Resize canvas al cambiar tamaño
+        window.addEventListener('resize', () => {
+            if (document.getElementById('vista-estadisticas').classList.contains('activa')) {
+                renderizarGraficoEvolucion();
+            }
+        });
+    </script>
+</body>
+</html>
